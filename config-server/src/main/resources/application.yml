@@ -22,6 +22,3 @@ spring:
       server:
         git:
           uri: https://github.com/kimgy0/spring_cloud_configuration_server.git
-        # username:
-        # password:
-        # uri: file://E:\msa\git-local-repo

@@ -7,12 +7,17 @@ import com.example.userservice.vo.ResponseOrder;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +29,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RestTemplate restTemplate;
+    private final Environment env;
+
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -50,9 +58,19 @@ public class UserServiceImpl implements UserService {
 
         UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
 
-        List<ResponseOrder> orderList = new ArrayList<>();
+        //        List<ResponseOrder> orderList = new ArrayList<>();
 
-        userDto.setOrders(orderList);
+        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+
+        ResponseEntity<List<ResponseOrder>> orderListResponse =
+                restTemplate.exchange(orderUrl,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<List<ResponseOrder>>() {
+        });
+
+
+        userDto.setOrders(orderListResponse.getBody());
 
         return userDto;
     }
@@ -66,7 +84,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserDetailsByEmail(String email) {
         UserEntity userEntity = userRepository.findByEmail(email);
 
-        if(null == userEntity) throw new UsernameNotFoundException(email);
+        if (null == userEntity) throw new UsernameNotFoundException(email);
 
         UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
 
@@ -80,11 +98,11 @@ public class UserServiceImpl implements UserService {
         if (null == userEntity) throw new UsernameNotFoundException(username);
 
         return new User(userEntity.getEmail(),
-                        userEntity.getEncryptedPwd(),
-                        true,
-                        true,
-                        true,
-                        true,
-                        new ArrayList<>());
+                userEntity.getEncryptedPwd(),
+                true,
+                true,
+                true,
+                true,
+                new ArrayList<>());
     }
 }
