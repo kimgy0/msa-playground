@@ -1,10 +1,12 @@
 package com.example.userservice.service;
 
+import com.example.userservice.client.OrderServiceClient;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.entity.UserEntity;
 import com.example.userservice.repository.UserRepository;
 import com.example.userservice.vo.ResponseOrder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.core.ParameterizedTypeReference;
@@ -24,12 +26,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RestTemplate restTemplate;
+//    private final RestTemplate restTemplate;
+    private final OrderServiceClient orderServiceClient;
     private final Environment env;
 
 
@@ -60,19 +64,32 @@ public class UserServiceImpl implements UserService {
 
         //        List<ResponseOrder> orderList = new ArrayList<>();
 
-        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+//        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+//
+//        ResponseEntity<List<ResponseOrder>> orderListResponse =
+//                restTemplate.exchange(orderUrl,
+//                        HttpMethod.GET,
+//                        null,
+//                        new ParameterizedTypeReference<List<ResponseOrder>>() {
+//        });
 
-        ResponseEntity<List<ResponseOrder>> orderListResponse =
-                restTemplate.exchange(orderUrl,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<ResponseOrder>>() {
-        });
+//        List<ResponseOrder> orders = null;
+//        try {
+//            orders = orderServiceClient.getOrders(userId);
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//        }
+//        userDto.setOrders(orders);
+//
+//        return userDto;
 
+        List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
 
-        userDto.setOrders(orderListResponse.getBody());
+        userDto.setOrders(orders);
 
         return userDto;
+
+
     }
 
     @Override
