@@ -11,13 +11,18 @@ spring:
         web-allow-others: true
       path: /h2-console
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
+    # driver-class-name: org.h2.Driver
+    # url: jdbc:h2:mem:testdb
+    # username: sa
+    # password:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/mydb
+    username: root
+    password: kma64cc!@
   jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     generate-ddl: true
     database: h2

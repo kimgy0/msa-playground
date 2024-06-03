@@ -14,7 +14,7 @@ import java.util.Map;
 
 @EnableKafka
 @Configuration
-public class KafkaConsumer {
+public class KafkaConsumerConfiguration {
 
     // Server Configuration
     @Bean
